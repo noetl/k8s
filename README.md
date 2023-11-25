@@ -16,6 +16,13 @@ In other words, database is not available when command execution is complete.
 ```bash
 make delete-mongodb-deploy
 ```
+#### Delete NATS deployment but keep namespace
+```bash
+make delete-mongodb-deploy-keep-ns
+```
+This command helps to keep PV (Persistent Volumes) used for database storage.  
+If the configuration of the deployment itself does not change the next deployment will pick up the volumes and the data will persist between database restarts.
+
 
 ## Install NATS
 
@@ -32,12 +39,6 @@ make deploy-nats
 ```bash
 make delete-nats-deploy
 ```
-#### Delete NATS deployment but keep namespace
-```bash
-make delete-mongodb-deploy-keep-ns
-```
-This command helps to keep PV (Persistent Volumes) used for database storage.  
-If the configuration of the deployment itself does not change the next deployment will pick up the volumes and the data will persist between database restarts.
 
 
 #### List NATS streams
