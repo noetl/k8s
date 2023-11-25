@@ -16,7 +16,7 @@ In other words, database is not available when command execution is complete.
 ```bash
 make delete-mongodb-deploy
 ```
-#### Delete NATS deployment but keep namespace
+#### Delete MongoDB deployment but keep namespace
 ```bash
 make delete-mongodb-deploy-keep-ns
 ```
