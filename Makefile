@@ -2,7 +2,12 @@
 NATS_DIR=nats
 MONGODB_DIR=mongodb
 
-#[NATS]###################################################################
+define get_postgres_password
+$(shell kubectl get secret postgres.chat-postgres.credentials.postgresql.acid.zalan.do -n postgres -o 'jsonpath={.data.password}' | base64 -d)
+endef
+PGPASSWORD=$(call get_postgres_password)
+
+###[NATS]###
 .PHONY: helm-repo-nats deploy-nats delete-nats-deploy nats-stream-ls
 
 helm-repo-nats:
@@ -32,8 +37,8 @@ nats-stream-ls:
 	nats stream ls -s nats://localhost:32222
 
 
-#[MONGODB]###################################################################
-.PHONY: helm-repo-mongodb deploy-mongodb delete-mongodb-deploy delete-mongodb-deploy-keep-ns
+###[MONGODB]###
+.PHONY: helm-repo-mongodb deploy-mongodb delete-mongodb-deploy delete-mongodb-operator delete-mongodb-operator-keep-ns
 
 helm-repo-mongodb:
 	@echo "Adding MonogDB Helm repo..."
@@ -54,12 +59,57 @@ delete-mongodb-deploy:
 	kubectl config use-context docker-desktop
 	kubectl delete -f $(MONGODB_DIR)/cr.yaml --namespace mongodb
 	kubectl delete -f $(MONGODB_DIR)/service.yaml --namespace mongodb
+
+delete-mongodb-operator:
+	@echo "Deleting MonogDB operator..."
+	kubectl config use-context docker-desktop
 	helm uninstall community-operator --namespace mongodb --wait
 	kubectl delete namespace mongodb
 
-delete-mongodb-deploy-keep-ns:
-	@echo "Deleting MonogDB deployment..."
+delete-mongodb-operator-keep-ns:
+	@echo "Deleting MonogDB operator..."
 	kubectl config use-context docker-desktop
-	kubectl delete -f $(MONGODB_DIR)/cr.yaml --namespace mongodb
-	kubectl delete -f $(MONGODB_DIR)/service.yaml --namespace mongodb
 	helm uninstall community-operator --namespace mongodb --wait
+
+
+###[Postgres]###
+.PHONY: helm-repo-postgres-operator deploy-postgres
+
+helm-repo-postgres-operator:
+	@echo "Adding Postgres operator Helm repo..."
+	helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+
+deploy-postgres:
+	@echo "Deploying Postgres..."
+	kubectl config use-context docker-desktop
+	helm install postgres-operator postgres-operator-charts/postgres-operator --version=1.10.1 --namespace postgres --create-namespace --wait
+	kubectl apply -f postgres/cr.yaml
+	kubectl apply -f postgres/service.yaml
+	@echo "Please run the following command for exporting `tput bold`PGPASSWORD`tput sgr0` and `tput bold`PGSSLMODE`tput sgr0`:"
+	@echo "`tput bold`eval \"\044(make postgres-password-export-postgres)\"`tput sgr0`" 
+	@echo "Connection can be established with the following parameters:"
+	@echo "`tput bold`psql -U postgres -h localhost -p 30432`tput sgr0`"
+
+
+delete-postgres-deploy:
+	@echo "Deleting Postgres deployment..."
+	kubectl config use-context docker-desktop
+	kubectl delete -f postgres/service.yaml
+	kubectl delete -f postgres/cr.yaml
+
+delete-postgres-operator:
+	@echo "Deleting Postgres operator..."
+	kubectl config use-context docker-desktop
+	helm uninstall postgres-operator --namespace postgres --wait
+	kubectl delete namespace postgres
+
+.PHONY: postgres-password-show-root postgres-password-export-postgres
+
+postgres-password-show-root:
+	@echo "root password:"
+	@(kubectl get secret root.chat-postgres.credentials.postgresql.acid.zalan.do -n postgres -o 'jsonpath={.data.password}' | base64 -d)
+ 
+postgres-password-export-postgres:
+	# Non-encrypted connections are rejected by default, so set the SSL mode to require:
+	@echo export PGSSLMODE=require
+	@echo export PGPASSWORD=$(PGPASSWORD)
