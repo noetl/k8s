@@ -1,0 +1,18 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: chat-postgres
+  namespace: postgres
+spec:
+  teamId: "chat"
+  volume:
+    size: 1Gi
+  numberOfInstances: 2
+  users:
+    root:  # database owner
+    - superuser
+    - createdb
+  databases:
+    chat: root  # dbname: owner
+  postgresql:
+    version: "15"

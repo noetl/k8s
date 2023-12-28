@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-ext
+  namespace: postgres
+spec:
+  type: NodePort
+  selector:
+    cluster-name: chat-postgres
+    team: chat
+    statefulset.kubernetes.io/pod-name: chat-postgres-0
+  ports:
+  - nodePort: 30432
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
