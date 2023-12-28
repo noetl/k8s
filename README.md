@@ -1,4 +1,4 @@
-# k8s
+# K8s
 ## Install MongoDB
 
 #### Add MongoDB Helm repository
@@ -71,7 +71,7 @@ make deploy-postgres
 Since the database instances created by postgres operator, it is necessary to wait while the creation is over.
 In other words, database is not available when command execution is complete. 
 
-_Complete CR reference_ [here](https://github.com/zalando/postgres-operator/blob/master/manifests/complete-postgres-manifest.yaml)
+_Complete CR reference is_ [here](https://github.com/zalando/postgres-operator/blob/master/manifests/complete-postgres-manifest.yaml)
 
 #### Delete Postgres deployment
 ```bash
@@ -86,7 +86,8 @@ make delete-postgres-operator
 make postgres-password-show-root
 ```
 
-#### Tips connect from inside of the cluster
+### Tips*
+#### Connect from inside of the cluster
 ```bash
 kubectl run psql-client --rm --tty -i --restart='Never' --namespace default --image bitnami/postgresql -- bash
 
