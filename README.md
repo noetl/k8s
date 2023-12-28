@@ -85,3 +85,13 @@ make delete-postgres-operator
 ```bash
 make postgres-password-show-root
 ```
+
+#### Tips connect from inside of the cluster
+```bash
+kubectl run psql-client --rm --tty -i --restart='Never' --namespace default --image bitnami/postgresql -- bash
+
+export PGSSLMODE=require
+export PGPASSWORD=A....
+
+psql -U postgres -h chat-postgres.postgres.svc.cluster.local -p 5432
+```
