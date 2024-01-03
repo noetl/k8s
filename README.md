@@ -96,3 +96,13 @@ export PGPASSWORD=A....
 
 psql -U postgres -h chat-postgres.postgres.svc.cluster.local -p 5432
 ```
+#### Connect from local host
+Install psql client
+```bash
+brew install libpq
+```
+Connect
+```bash
+psql -U postgres -h localhost -p 30432
+
+```
