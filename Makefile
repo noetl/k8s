@@ -78,6 +78,7 @@ delete-mongodb-operator-keep-ns:
 helm-repo-postgres-operator:
 	@echo "Adding Postgres operator Helm repo..."
 	helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+	helm repo update
 
 deploy-postgres:
 	@echo "Deploying Postgres..."
